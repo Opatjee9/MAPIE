@@ -7,8 +7,11 @@ Prefer black-box tests (no mocks) if possible, to avoid testing implementation d
 
 import numpy as np
 import pytest
+from sklearn.datasets import make_regression
+from unittest.mock import patch
 
-from mapie_v1._utils import (
+
+from mapie_v1.utils import (
     prepare_params,
     prepare_fit_params_and_sample_weight,
     transform_confidence_level_to_alpha_list,
@@ -20,8 +23,113 @@ from mapie_v1._utils import (
     raise_error_if_previous_method_not_called,
     raise_error_if_method_already_called,
     raise_error_if_fit_called_in_prefit_mode,
+    super_train_test_split
 )
-from unittest.mock import patch
+
+RANDOM_STATE = 1
+
+
+@pytest.fixture(scope="module")
+def dataset():
+    X, y = make_regression(
+        n_samples=100, n_features=2, noise=1.0, random_state=RANDOM_STATE
+    )
+    return X, y
+
+
+class TestSuperTrainTestSplit3Inputs:
+
+    def test_error_wrong_proportion(self, dataset):
+        X, y = dataset
+        with pytest.raises(ValueError):
+            super_train_test_split(
+                X, y, train_size=1, conformalize_size=1, test_size=1)
+
+    def test_return_3_inputs(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+                X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2)
+        assert len(X_test) == 20
+        assert len(X_train) == 60
+        assert len(X_conformalize) == 20
+
+
+class TestSuperTrainTestSplit2Inputs:
+
+    def test_error_wrong_proportion(self, dataset):
+        X, y = dataset
+        with pytest.raises(ValueError):
+            super_train_test_split(
+                X, y, train_size=1, conformalize_size=1)
+
+    def test_train_test_inputs(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, test_size=0.2, train_size=0.7
+        )
+        assert len(X_train) == 70
+        assert len(X_conformalize) == 10
+        assert len(X_test) == 20
+
+    def test_train_conformalize_inputs(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, train_size=0.4, conformalize_size=0.4
+        )
+        assert len(X_train) == 40
+        assert len(X_conformalize) == 40
+        assert len(X_test) == 20
+
+    def test_conformalize_test_inputs(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, test_size=0.2, conformalize_size=0.2
+        )
+        assert len(y_train) == 60
+        assert len(y_conformalize) == 19
+        assert len(y_test) == 21
+
+
+class TestSuperTrainTestSplit1Input:
+
+    def test_test_size(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, test_size=0.2
+        )
+        assert len(X_train) == 64
+        assert len(X_conformalize) == 15
+        assert len(X_test) == 21
+
+    def test_conformalize_size(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, conformalize_size=0.3
+        )
+        assert len(X_train) == 55
+        assert len(X_conformalize) == 30
+        assert len(X_test) == 15
+
+    def test_train_size(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y, train_size=0.6
+        )
+        assert len(y_train) == 60
+        assert len(y_conformalize) == 20
+        assert len(y_test) == 20
+
+
+class TestSuperTrainTestSplitNoInput:
+
+    def test_no_input(self, dataset):
+        X, y = dataset
+        X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
+            X, y
+        )
+        assert len(X_train) == 60
+        assert len(X_conformalize) == 20
+        assert len(X_test) == 20
 
 
 @pytest.fixture
@@ -55,7 +163,7 @@ class TestTransformConfidenceLevelToAlphaList:
 
     def test_transform_confidence_level_to_alpha_is_called(self):
         with patch(
-            'mapie_v1._utils.transform_confidence_level_to_alpha'
+            'mapie_v1.utils.transform_confidence_level_to_alpha'
         ) as mock_transform_confidence_level_to_alpha:
             transform_confidence_level_to_alpha_list([0.2, 0.3])
             mock_transform_confidence_level_to_alpha.assert_called()
@@ -110,7 +218,7 @@ def test_prepare_params(params, expected):
 
 class TestPrepareFitParamsAndSampleWeight:
     def test_uses_prepare_params(self):
-        with patch('mapie_v1._utils.prepare_params') as mock_prepare_params:
+        with patch('mapie_v1.utils.prepare_params') as mock_prepare_params:
             prepare_fit_params_and_sample_weight({"param1": 1})
             mock_prepare_params.assert_called()
 
