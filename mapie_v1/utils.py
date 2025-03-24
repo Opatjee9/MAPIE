@@ -177,7 +177,43 @@ def super_train_test_split(
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from sklearn.datasets import make_regression
+    >>> X, y = np.arange(10).reshape((5, 2)), range(5)
+    >>> X
+    array([[0, 1],
+        [2, 3],
+        [4, 5],
+        [6, 7],
+        [8, 9]])
+    >>> list(y)
+    [0, 1, 2, 3, 4]
+    >>> (
+    ...     X_train, X_conformalize, X_test,
+    ...     y_train, y_conformalize, y_test
+    ... ) = super_train_test_split(
+    ...     X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=1
+    ... )
+    >>> X_train
+    array([[8, 9],
+        [0, 1],
+        [6, 7]])
+    >>> X_conformalize
+    array([[2, 3]])
+    >>> X_test
+    array([[4, 5]])
+    >>> y_train
+    [4, 0, 3]
+    >>> y_conformalize
+    [1]
+    >>> y_test
+    [2]
 
+    >>> super_train_test_split(
+    ...     X, y, train_size=0.6, random_state=RANDOM_STATE)
+    (array([[8, 9],
+        [0, 1],
+        [6, 7]]), array([[2, 3]]), array([[4, 5]]), [4, 0, 3], [1], [2])
     """
     train_size, test_size = _set_proportions(
         train_size, conformalize_size, test_size

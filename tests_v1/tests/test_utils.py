@@ -43,12 +43,12 @@ class TestSuperTrainTestSplit3Inputs:
         X, y = dataset
         with pytest.raises(ValueError):
             super_train_test_split(
-                X, y, train_size=1, conformalize_size=1, test_size=1)
+                X, y, train_size=1, conformalize_size=1, test_size=1, random_state=RANDOM_STATE)
 
     def test_return_3_inputs(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-                X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2)
+                X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=RANDOM_STATE)
         assert len(X_test) == 20
         assert len(X_train) == 60
         assert len(X_conformalize) == 20
@@ -60,12 +60,12 @@ class TestSuperTrainTestSplit2Inputs:
         X, y = dataset
         with pytest.raises(ValueError):
             super_train_test_split(
-                X, y, train_size=1, conformalize_size=1)
+                X, y, train_size=1, conformalize_size=1, random_state=RANDOM_STATE)
 
     def test_train_test_inputs(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, test_size=0.2, train_size=0.7
+            X, y, test_size=0.2, train_size=0.7, random_state=RANDOM_STATE
         )
         assert len(X_train) == 70
         assert len(X_conformalize) == 10
@@ -74,7 +74,7 @@ class TestSuperTrainTestSplit2Inputs:
     def test_train_conformalize_inputs(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, train_size=0.4, conformalize_size=0.4
+            X, y, train_size=0.4, conformalize_size=0.4, random_state=RANDOM_STATE
         )
         assert len(X_train) == 40
         assert len(X_conformalize) == 40
@@ -83,7 +83,7 @@ class TestSuperTrainTestSplit2Inputs:
     def test_conformalize_test_inputs(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, test_size=0.2, conformalize_size=0.2
+            X, y, test_size=0.2, conformalize_size=0.2, random_state=RANDOM_STATE
         )
         assert len(y_train) == 60
         assert len(y_conformalize) == 19
@@ -95,7 +95,7 @@ class TestSuperTrainTestSplit1Input:
     def test_test_size(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, test_size=0.2
+            X, y, test_size=0.2, random_state=RANDOM_STATE
         )
         assert len(X_train) == 64
         assert len(X_conformalize) == 15
@@ -104,7 +104,7 @@ class TestSuperTrainTestSplit1Input:
     def test_conformalize_size(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, conformalize_size=0.3
+            X, y, conformalize_size=0.3, random_state=RANDOM_STATE
         )
         assert len(X_train) == 55
         assert len(X_conformalize) == 30
@@ -113,7 +113,7 @@ class TestSuperTrainTestSplit1Input:
     def test_train_size(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y, train_size=0.6
+            X, y, train_size=0.6, random_state=RANDOM_STATE
         )
         assert len(y_train) == 60
         assert len(y_conformalize) == 20
@@ -125,7 +125,7 @@ class TestSuperTrainTestSplitNoInput:
     def test_no_input(self, dataset):
         X, y = dataset
         X_train, X_conformalize, X_test, y_train, y_conformalize, y_test = super_train_test_split(
-            X, y
+            X, y, random_state=RANDOM_STATE
         )
         assert len(X_train) == 60
         assert len(X_conformalize) == 20
